@@ -117,6 +117,7 @@ function ProjectTopic_(projectId){
     /********************************************
     *********************************************/
     topicObj.getName = function(){return topicObj.topicName_}
+    
     return topicObj;
   }
   
@@ -130,3 +131,4 @@ function ProjectTopic_(projectId){
   }
   return self;
 }
+
