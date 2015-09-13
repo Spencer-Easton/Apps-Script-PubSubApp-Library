@@ -1,6 +1,6 @@
 /********************************************
 * Construtor for the SubscriptionApp service
-* @param {string} project The API project ID of the pub/sub service
+* @param {string} projectId The API project ID of the pub/sub service
 * @return {object} The SubscriptionApp service
 *********************************************/
 function SubscriptionApp(projectId){return new ProjectSubscription_(projectId)}
@@ -40,7 +40,7 @@ function ProjectSubscription_(projectId){
   
   /********************************************
   *********************************************/
-  self_.createSubscription = function(subscriptionName,topicName,endPoint){
+  self_.newSubscription = function(subscriptionName,topicName,endPoint){
     
     var expression = new RegExp(/^(?!goog)[a-z][a-z0-9-_\.~+%]{2,254}$/i);
     if(!expression.test(subscriptionName)){
