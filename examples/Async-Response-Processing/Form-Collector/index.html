@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+  <html>
+    <head>
+    </head>
+    <body>
+      <div>
+      Enter your name:<br>
+      <input type="text" id="nameInput"/>
+      <button onclick="submitResponse(document.getElementById('nameInput').value)">submit name</button><br>
+      <span id="response"></span>
+      </div>
+    </body>
+    <script>
+      function submitResponse(response){
+        document.getElementById('response').innerHTML = "Submitting"
+        google.script.run
+        .withFailureHandler(function(e){alert("error:" + e)})
+        .withSuccessHandler(function(){document.getElementById('response').innerHTML = "Submitted"})
+        .handleResponse(response);
+      }
+    </script>
+</html>
+
