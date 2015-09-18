@@ -2,18 +2,19 @@
 * The constructor of the policyBuilder service
 * @return {object} The policyBuilder service
 *********************************************/
-function policyBuilder(){return new policyBuilder_()}
+function policyBuilder(){return new policyBuilder_()};
 
-/********************************************
-*********************************************/
-var policyBuilder_ = function(){
-  var policyBuilder = this,
-      POLICY = JSON.stringify({bindings:[]}),
-      ROLES = Object.freeze({VIEWER:"roles/viewer",EDITOR:"roles/editor",OWNER:"roles/owner",PUBLISHER:"roles/pubsub.publisher",SUB:"roles/pubsub.subscriber"}),
+function policyBuilder_(){
+  var policyBuilder = this;
+  POLICY = JSON.stringify({bindings:[]}),
+    ROLES = Object.freeze({Viewer:"roles/viewer",Editor:"roles/editor",Owner:"roles/owner",Publisher:"roles/pubsub.publisher",Subscriber:"roles/pubsub.subscriber"}),
       MEMBERTYPE = Object.freeze({ALLUSERS:"allAuthenticatedUsers",USER:"user:",SERVICEACCOUNT:"serviceAccount:",GROUP:"group:", DOMAIN:"domain:"});
   
   
   /********************************************
+  * Creates a Policy object from an existing IAM policy resource
+  * @param {object} policyResource The policy resource to edit
+  * @return {object} new Policy object
   *********************************************/
   policyBuilder.editPolicy = function(policyResource){
     var policyMap = {};
@@ -28,91 +29,46 @@ var policyBuilder_ = function(){
   }
   
   /********************************************
-  *********************************************/ 
+  * Creates a new Policy object
+  * @return {object} new Policy object
+  *********************************************/
   policyBuilder.newPolicy = function(){
     return new Policy_();
   }
   
-  /********************************************
-  *********************************************/
+  
   function Policy_(policyMap){
     var policyMapper = policyMap || {};
     var thisPolicy = this;
     
-    /******************************************/
-    /******************************************/
-    thisPolicy.removeOwner = function(name){
-      removeMember_(ROLES["OWNER"],name);
-      return thisPolicy;
-    }
+    for(var role in ROLES){
+      /********************************************
+      * Add member to policy role
+      * @param {string} memberRole The role defined in MEMBERTYPE object
+      * @param {string} Name The name, usually the email, of the user
+      * @return {object} this Policy object
+      *********************************************/
+      thisPolicy["add"+role] = (function(myRole){return function(memberType,Name){                    
+        addMember_(myRole,memberType.toUpperCase(),Name);
+        return thisPolicy;
+      }})(role);
+      
+      /********************************************
+      * remove member from policy role      
+      * @param {string} Name The name, usually the email, of the user
+      * @return {object} this Policy object
+      *********************************************/
+      thisPolicy["remove"+role] =(function(myRole){return function(Name){
+        removeMember_(myRole,Name);
+        return thisPolicy;
+      }})(role);
     
-    /******************************************/
-    /******************************************/
-    thisPolicy.removeEditor = function(name){
-      removeMember_(ROLES["EDITOR"],name);
-      return thisPolicy;
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.removeViewer = function(name){
-      removeMember_(ROLES["VIEWER"],name);
-      return thisPolicy;
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.removePublisher = function(name){
-      removeMember_(ROLES["PUBLISHER"],name);
-      return thisPolicy;
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.removeSubscriber = function(name){
-      removeMember_(ROLES["SUB"],name);
-      return thisPolicy;
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.addOwner = function(memberType,Name){
-      addMember_("OWNER",memberType.toUpperCase(),Name);
-      return thisPolicy; 
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.addEditor = function(memberType,Name){
-      addMember_("EDITOR",memberType.toUpperCase(),Name);
-      return thisPolicy; 
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.addViewer = function(memberType,Name){
-      addMember_("VIEWER",memberType.toUpperCase(),Name);
-      return thisPolicy; 
-    };
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.addPublisher = function(memberType,Name){
-      addMember_("PUBLISHER",memberType.toUpperCase(),Name);
-      return thisPolicy; 
-    }
-    
-    /******************************************/
-    /******************************************/
-    thisPolicy.addSubscriber = function(memberType,Name){
-      addMember_("SUB",memberType.toUpperCase(),Name);
-      return thisPolicy; 
     }
     
     /******************************************/
     /******************************************/
     function addMember_(role,memberType,name){
-      if(!name)name="";
+      var name = name || "";
       if(!(ROLES[role] in policyMapper)){policyMapper[ROLES[role]] = [];}
       policyMapper[ROLES[role]].push(MEMBERTYPE[memberType]+name);
     }
@@ -120,14 +76,15 @@ var policyBuilder_ = function(){
     /******************************************/
     /******************************************/
     function removeMember_(role,name){
-      if(!name)name="";
-      for(var i = 0; i < policyMapper[role].length;i++){
-        if(policyMapper[role][i].indexOf(name) != -1){policyMapper[role].splice(i,1)};
+      var name = name || "";
+      for(var i = 0; i < policyMapper[ROLES[role]].length;i++){
+        if(policyMapper[ROLES[role]][i].indexOf(name) != -1){policyMapper[ROLES[role]].splice(i,1)};
       }
     }
-    
-    /******************************************/
-    /******************************************/
+    /********************************************
+    * Return this policy as an IAM PolicyResource
+    * @return {object} IAM policy resource object
+    *********************************************/
     thisPolicy.getPolicy = function(){
       var returnPolicy = JSON.parse(POLICY);
       var members;
@@ -137,6 +94,6 @@ var policyBuilder_ = function(){
       return returnPolicy;
     } 
     return thisPolicy;
-  }
-   return policyBuilder;
+  }  
+ return policyBuilder;
 }
