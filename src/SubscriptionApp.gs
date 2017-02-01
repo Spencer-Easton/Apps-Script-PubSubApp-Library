@@ -144,7 +144,7 @@ function ProjectSubscription_(projectId) {
     /******************************************/
     /******************************************/
     selfSub.pull = function(maxCount, autoAck) {
-      var autoAck = autoAck || true,
+      var autoAck = autoAck !== false,
         returnMessages = [],
         ackIds = [],
         maxCount = maxCount || 1,
@@ -158,19 +158,15 @@ function ProjectSubscription_(projectId) {
           payload: JSON.stringify(payload)
         },
         messages = CALL_(path, options).receivedMessages;
-      for (var i in messages) {
-        returnMessages.push(messages[i].message);
-        ackIds.push(messages[i].ackId);
-      }
       if (autoAck) {
+        for (var i in messages) {
+          ackIds.push(messages[i].ackId);
+        }
         if (ackIds.length > 0) {
           selfSub.ack(ackIds);
         }
-        return returnMessages;
       }
-      else {
-        return messages;
-      }
+      return messages;
     };
 
     /******************************************/
